@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const app = express();
 
 // CORS configuration - sabse pehle
@@ -16,9 +15,6 @@ app.options('*', cors());
 
 // Body parser
 app.use(express.json());
-
-// Serve static files (frontend)
-app.use(express.static(path.join(__dirname, '.')));
 
 // Temporary storage
 let users = [];
@@ -75,17 +71,7 @@ app.get('/api/users', (req, res) => {
     });
 });
 
-// Serve index.html for root path
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Serve login.html for login route
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
-});
-
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
