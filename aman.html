@@ -1,0 +1,993 @@
+import React, { useState } from 'react';
+import { Download, FileText, Code, Database, Monitor } from 'lucide-react';
+
+const EnhancedSpotifyApp = () => {
+const [activeFile, setActiveFile] = useState('index.html');
+
+const files = {
+'index.html': {
+icon: FileText,
+content: `
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - Your favourite music is here</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <ul class="nav-list">
+            <li class="brand">
+                <img src="assets/images/logo.png" alt="Spotify">
+                <span>Spotify</span>
+            </li>
+            <li class="nav-item">Home</li>
+            <li class="nav-item">About</li>
+            <li class="nav-item">Premium</li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="song-list-section">
+            <h1>Best of NCS - No Copyright Sounds</h1>
+            <div class="song-item-container" id="songItemContainer">
+                <!-- Songs will be dynamically loaded here -->
+            </div>
+        </div>
+        <div class="song-banner"></div>
+    </div>
+
+    <div class="player-controls">
+        <input type="range" id="myProgressBar" min="0" value="0" max="100" class="progress-bar">
+        <div class="control-icons">
+            <i class="fa-solid fa-backward-step" id="previous"></i>
+            <i class="fa-solid fa-play-circle" id="masterPlay"></i>
+            <i class="fa-solid fa-forward-step" id="next"></i>
+        </div>
+        <div class="song-info">
+            <img src="assets/images/playing.gif" alt="Playing" id="gif" class="playing-gif">
+            <span id="masterSongName">Select a song to play</span>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Error Message Container -->
+    <div id="errorContainer" class="error-container hidden">
+        <div class="error-message">
+            <span id="errorText"></span>
+            <button id="dismissError" class="dismiss-btn">×</button>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/217e583bb4.js" crossorigin="anonymous"></script>
+    <script src="js/logger.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/musicPlayer.js"></script>
+    <script src="js/uiController.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>`
+},
+'styles/main.css': {
+icon: FileText,
+content: `@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+
+/* CSS Variables for theming */
+:root {
+--primary-color: #1db954;
+--secondary-color: #191414;
+--background-color: #121212;
+--surface-color: #181818;
+--text-primary: #ffffff;
+--text-secondary: #b3b3b3;
+--error-color: #e22134;
+--warning-color: #ff9800;
+--success-color: #4caf50;
+--border-radius: 8px;
+--transition: all 0.3s ease;
+}
+
+/* Reset and Base Styles */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+background: linear-gradient(135deg, var(--background-color) 0%, #1e3c72 100%);
+font-family: 'Ubuntu', sans-serif;
+color: var(--text-primary);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Navigation Styles */
+.navbar {
+background: var(--secondary-color);
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-list {
+display: flex;
+list-style: none;
+height: 70px;
+align-items: center;
+padding: 0 2rem;
+}
+
+.nav-item {
+padding: 0 1.5rem;
+cursor: pointer;
+transition: var(--transition);
+border-radius: var(--border-radius);
+}
+
+.nav-item:hover {
+background: rgba(255, 255, 255, 0.1);
+color: var(--primary-color);
+}
+
+.brand {
+display: flex;
+align-items: center;
+font-weight: 700;
+font-size: 1.8rem;
+margin-right: auto;
+}
+
+.brand img {
+width: 50px;
+height: 50px;
+margin-right: 1rem;
+border-radius: 50%;
+}
+
+/* Container Styles */
+.container {
+min-height: 70vh;
+background: linear-gradient(45deg, rgba(29, 185, 84, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+display: flex;
+margin: 2rem auto;
+width: 90%;
+max-width: 1200px;
+border-radius: 16px;
+padding: 2rem;
+backdrop-filter: blur(10px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.song-list-section {
+flex: 1;
+}
+
+.song-list-section h1 {
+margin-bottom: 2rem;
+font-size: 2.5rem;
+background: linear-gradient(45deg, var(--primary-color), #1ed760);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-align: center;
+}`
+},
+'styles/components.css': {
+icon: FileText,
+content: `/* Song Item Styles */
+.song-item-container {
+margin-top: 2rem;
+}
+
+.song-item {
+height: 60px;
+display: flex;
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(10px);
+color: var(--secondary-color);
+margin: 1rem 0;
+align-items: center;
+border-radius: 12px;
+transition: var(--transition);
+border: 1px solid rgba(255, 255, 255, 0.2);
+cursor: pointer;
+}
+
+.song-item:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px rgba(29, 185, 84, 0.3);
+background: rgba(255, 255, 255, 1);
+}
+
+.song-item img {
+width: 50px;
+height: 50px;
+margin: 0 1rem;
+border-radius: 8px;
+object-fit: cover;
+}
+
+.song-name {
+flex: 1;
+font-weight: 500;
+font-size: 1.1rem;
+}
+
+.song-controls {
+display: flex;
+align-items: center;
+margin-right: 1rem;
+}
+
+.timestamp {
+margin-right: 1rem;
+font-size: 0.9rem;
+color: var(--text-secondary);
+}
+
+.song-item-play {
+cursor: pointer;
+color: var(--primary-color);
+transition: var(--transition);
+font-size: 1.2rem;
+}
+
+.song-item-play:hover {
+transform: scale(1.1);
+color: #1ed760;
+}
+
+/* Player Controls */
+.player-controls {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+height: 90px;
+background: linear-gradient(135deg, var(--secondary-color) 0%, #000 100%);
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+backdrop-filter: blur(20px);
+}
+
+.progress-bar {
+width: 80vw;
+height: 6px;
+margin-bottom: 1rem;
+appearance: none;
+background: rgba(255, 255, 255, 0.2);
+border-radius: 3px;
+cursor: pointer;
+}
+
+.progress-bar::-webkit-slider-thumb {
+appearance: none;
+width: 16px;
+height: 16px;
+background: var(--primary-color);
+border-radius: 50%;
+cursor: pointer;
+}
+
+.control-icons {
+display: flex;
+gap: 2rem;
+align-items: center;
+}
+
+.control-icons i {
+cursor: pointer;
+transition: var(--transition);
+color: var(--text-primary);
+font-size: 2rem;
+}
+
+.control-icons i:hover {
+color: var(--primary-color);
+transform: scale(1.1);
+}
+
+.song-info {
+position: absolute;
+left: 2rem;
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.playing-gif {
+width: 50px;
+height: 50px;
+opacity: 0;
+transition: opacity 0.3s ease;
+border-radius: 50%;
+}
+
+#masterSongName {
+font-weight: 500;
+font-size: 1.1rem;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 1000;
+}
+
+.spinner {
+width: 50px;
+height: 50px;
+border: 3px solid rgba(255, 255, 255, 0.3);
+border-top: 3px solid var(--primary-color);
+border-radius: 50%;
+animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+/* Error Container */
+.error-container {
+position: fixed;
+top: 1rem;
+right: 1rem;
+z-index: 1000;
+max-width: 400px;
+}
+
+.error-message {
+background: var(--error-color);
+color: white;
+padding: 1rem;
+border-radius: var(--border-radius);
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dismiss-btn {
+background: none;
+border: none;
+color: white;
+font-size: 1.2rem;
+cursor: pointer;
+padding: 0 0.5rem;
+}
+
+/* Utility Classes */
+.hidden {
+display: none !important;
+}
+
+.fade-in {
+animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(-10px); }
+to { opacity: 1; transform: translateY(0); }
+}`
+},
+'styles/responsive.css': {
+icon: FileText,
+content: `/* Responsive Design */
+@media screen and (max-width: 768px) {
+.container {
+width: 95%;
+padding: 1rem;
+flex-direction: column;
+}
+
+.nav-list {
+padding: 0 1rem;
+flex-wrap: wrap;
+}
+
+.brand {
+font-size: 1.4rem;
+}
+
+.brand img {
+width: 40px;
+height: 40px;
+}
+
+.song-list-section h1 {
+font-size: 1.8rem;
+}
+
+.song-item {
+height: 70px;
+padding: 0.5rem;
+}
+
+.song-name {
+font-size: 0.9rem;
+}
+
+.control-icons i {
+font-size: 1.5rem;
+}
+
+.song-info {
+position: relative;
+left: 0;
+margin-top: 0.5rem;
+}
+
+.progress-bar {
+width: 90vw;
+}
+
+.player-controls {
+height: 120px;
+padding: 1rem;
+}
+}
+
+@media screen and (max-width: 480px) {
+.nav-item {
+padding: 0 0.5rem;
+font-size: 0.9rem;
+}
+
+.song-item {
+margin: 0.5rem 0;
+}
+
+.control-icons {
+gap: 1rem;
+}
+
+.error-container {
+left: 1rem;
+right: 1rem;
+max-width: none;
+}
+}
+
+/* Dark/Light Theme Support */
+@media (prefers-color-scheme: light) {
+:root {
+--background-color: #f5f5f5;
+--surface-color: #ffffff;
+--text-primary: #000000;
+--text-secondary: #666666;
+}
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+.song-item {
+border: 2px solid var(--primary-color);
+}
+
+.control-icons i {
+text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+* {
+animation-duration: 0.01ms !important;
+animation-iteration-count: 1 !important;
+transition-duration: 0.01ms !important;
+}
+}`
+},
+'js/logger.js': {
+icon: Code,
+content: `/**
+* Enhanced Logging System for Spotify Web App
+* Provides comprehensive logging with multiple levels and remote logging
+*/
+
+class Logger {
+constructor(config = {}) {
+this.config = {
+level: config.level || 'info',
+apiEndpoint: config.apiEndpoint || '/api/logs',
+batchSize: config.batchSize || 10,
+flushInterval: config.flushInterval || 30000, // 30 seconds
+maxRetries: config.maxRetries || 3,
+enableConsole: config.enableConsole !== false,
+enableRemote: config.enableRemote !== false,
+...config
+};
+
+this.logBuffer = [];
+this.retryQueue = [];
+this.sessionId = this.generateSessionId();
+this.userId = this.getUserId();
+this.deviceInfo = this.getDeviceInfo();
+
+this.levels = {
+error: 0,
+warn: 1,
+info: 2,
+debug: 3
+};
+
+this.currentLevel = this.levels[this.config.level] || this.levels.info;
+
+// Start periodic flush
+if (this.config.enableRemote) {
+this.startPeriodicFlush();
+}
+
+// Log session start
+this.info('Session started', {
+sessionId: this.sessionId,
+userAgent: navigator.userAgent,
+timestamp: new Date().toISOString()
+});
+
+// Setup error handlers
+this.setupGlobalErrorHandlers();
+}
+
+generateSessionId() {
+return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+getUserId() {
+// Try to get user ID from localStorage or generate anonymous ID
+let userId = localStorage.getItem('spotify_user_id');
+if (!userId) {
+userId = 'anon_' + Math.random().toString(36).substr(2, 9);
+localStorage.setItem('spotify_user_id', userId);
+}
+return userId;
+}
+
+getDeviceInfo() {
+return {
+platform: navigator.platform,
+language: navigator.language,
+cookieEnabled: navigator.cookieEnabled,
+onLine: navigator.onLine,
+screen: {
+width: screen.width,
+height: screen.height,
+colorDepth: screen.colorDepth
+},
+viewport: {
+width: window.innerWidth,
+height: window.innerHeight
+}
+};
+}
+
+setupGlobalErrorHandlers() {
+// JavaScript errors
+window.addEventListener('error', (event) => {
+this.error('JavaScript Error', {
+message: event.message,
+filename: event.filename,
+lineno: event.lineno,
+colno: event.colno,
+stack: event.error?.stack,
+type: 'javascript_error'
+});
+});
+
+// Promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+this.error('Unhandled Promise Rejection', {
+reason: event.reason,
+type: 'promise_rejection'
+});
+});
+
+// Resource loading errors
+window.addEventListener('error', (event) => {
+if (event.target !== window) {
+this.error('Resource Loading Error', {
+tagName: event.target.tagName,
+source: event.target.src || event.target.href,
+type: 'resource_error'
+});
+}
+}, true);
+}
+
+log(level, message, metadata = {}) {
+if (this.levels[level] > this.currentLevel) {
+return; // Skip if level is too verbose
+}
+
+const logEntry = {
+level: level.toUpperCase(),
+message,
+timestamp: new Date().toISOString(),
+sessionId: this.sessionId,
+userId: this.userId,
+url: window.location.href,
+userAgent: navigator.userAgent,
+...metadata
+};
+
+// Console logging
+if (this.config.enableConsole) {
+this.logToConsole(level, message, logEntry);
+}
+
+// Remote logging
+if (this.config.enableRemote) {
+this.logBuffer.push(logEntry);
+
+if (this.logBuffer.length >= this.config.batchSize) {
+this.flush();
+}
+}
+}
+
+logToConsole(level, message, logEntry) {
+const style = this.getConsoleStyle(level);
+const timestamp = new Date().toLocaleTimeString();
+
+console.group(\`%c[\${level.toUpperCase()}] \${timestamp}\`, style);
+console.log(message);
+if (Object.keys(logEntry).length > 6) { // More than basic fields
+console.log('Metadata:', logEntry);
+}
+console.groupEnd();
+}
+
+getConsoleStyle(level) {
+const styles = {
+error: 'color: #e74c3c; font-weight: bold;',
+warn: 'color: #f39c12; font-weight: bold;',
+info: 'color: #3498db; font-weight: bold;',
+debug: 'color: #95a5a6; font-weight: normal;'
+};
+return styles[level] || styles.info;
+}
+
+error(message, metadata = {}) {
+this.log('error', message, { ...metadata, category: 'error' });
+}
+
+warn(message, metadata = {}) {
+this.log('warn', message, { ...metadata, category: 'warning' });
+}
+
+info(message, metadata = {}) {
+this.log('info', message, { ...metadata, category: 'info' });
+}
+
+debug(message, metadata = {}) {
+this.log('debug', message, { ...metadata, category: 'debug' });
+}
+
+// Music-specific logging methods
+trackPlay(songData) {
+this.info('Track played', {
+songId: songData.id,
+songName: songData.name,
+duration: songData.duration,
+source: songData.source,
+category: 'music_playback'
+});
+}
+
+trackPause(songData, currentTime) {
+this.info('Track paused', {
+songId: songData.id,
+songName: songData.name,
+currentTime: currentTime,
+category: 'music_playback'
+});
+}
+
+trackSkip(fromSong, toSong, reason = 'user_action') {
+this.info('Track skipped', {
+fromSongId: fromSong.id,
+toSongId: toSong.id,
+reason: reason,
+category: 'music_navigation'
+});
+}
+
+userInteraction(action, element, metadata = {}) {
+this.info('User interaction', {
+action: action,
+element: element,
+...metadata,
+category: 'user_interaction'
+});
+}
+
+performanceMetric(metricName, value, unit = 'ms') {
+this.info('Performance metric', {
+metric: metricName,
+value: value,
+unit: unit,
+category: 'performance'
+});
+}
+
+async flush() {
+if (this.logBuffer.length === 0) return;
+
+const logsToSend = [...this.logBuffer];
+this.logBuffer = [];
+
+try {
+const response = await fetch(this.config.apiEndpoint, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+logs: logsToSend,
+sessionId: this.sessionId,
+deviceInfo: this.deviceInfo
+})
+});
+
+if (!response.ok) {
+throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+}
+
+// Clear retry queue on success
+this.retryQueue = [];
+
+} catch (error) {
+console.warn('Failed to send logs to server:', error);
+this.retryQueue.push(...logsToSend);
+this.scheduleRetry();
+}
+}
+
+scheduleRetry() {
+if (this.retryQueue.length === 0) return;
+
+setTimeout(() => {
+this.logBuffer.push(...this.retryQueue.splice(0, this.config.batchSize));
+this.flush();
+}, 5000); // Retry after 5 seconds
+}
+
+startPeriodicFlush() {
+setInterval(() => {
+this.flush();
+}, this.config.flushInterval);
+}
+
+setLevel(level) {
+if (this.levels[level] !== undefined) {
+this.currentLevel = this.levels[level];
+this.config.level = level;
+this.info('Log level changed', { newLevel: level });
+}
+}
+
+destroy() {
+this.flush();
+this.info('Session ended', {
+sessionId: this.sessionId,
+timestamp: new Date().toISOString()
+});
+}
+}
+
+// Create global logger instance
+window.logger = new Logger({
+level: 'info',
+apiEndpoint: '/api/logs',
+enableConsole: true,
+enableRemote: false // Set to true when backend is ready
+});
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+module.exports = Logger;
+}`
+},
+'js/analytics.js': {
+icon: Database,
+content: `/**
+* Analytics and User Behavior Tracking
+* Tracks user interactions and music listening patterns
+*/
+
+class Analytics {
+constructor(logger) {
+this.logger = logger;
+this.sessionStartTime = Date.now();
+this.currentSong = null;
+this.songStartTime = null;
+this.totalListeningTime = 0;
+this.interactions = [];
+this.performanceMetrics = new Map();
+
+this.init();
+}
+
+init() {
+this.trackPageLoad();
+this.setupPerformanceMonitoring();
+this.trackUserBehavior();
+}
+
+trackPageLoad() {
+const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+this.logger.performanceMetric('page_load_time', loadTime);
+
+// Track resource loading times
+if (performance.getEntriesByType) {
+const resources = performance.getEntriesByType('resource');
+resources.forEach(resource => {
+if (resource.name.includes('.mp3') || resource.name.includes('.jpg')) {
+this.logger.performanceMetric('resource_load_time', Math.round(resource.duration), 'ms');
+}
+});
+}
+}
+
+setupPerformanceMonitoring() {
+// Monitor memory usage (if available)
+if (performance.memory) {
+setInterval(() => {
+const memoryInfo = {
+usedJSHeapSize: performance.memory.usedJSHeapSize,
+totalJSHeapSize: performance.memory.totalJSHeapSize,
+jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+};
+
+this.logger.debug('Memory usage', {
+...memoryInfo,
+category: 'performance'
+});
+}, 60000); // Every minute
+}
+
+// Monitor frame rate
+this.monitorFrameRate();
+}
+
+monitorFrameRate() {
+let lastTime = performance.now();
+let frameCount = 0;
+
+const checkFrameRate = (currentTime) => {
+frameCount++;
+
+if (currentTime - lastTime >= 1000) { // Every second
+const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+this.logger.debug('Frame rate', {
+fps: fps,
+category: 'performance'
+});
+
+frameCount = 0;
+lastTime = currentTime;
+}
+
+requestAnimationFrame(checkFrameRate);
+};
+
+requestAnimationFrame(checkFrameRate);
+}
+
+trackUserBehavior() {
+// Track mouse movements (throttled)
+let lastMouseMove = 0;
+document.addEventListener('mousemove', (event) => {
+const now = Date.now();
+if (now - lastMouseMove > 5000) { // Every 5 seconds
+this.logger.debug('User activity', {
+type: 'mouse_movement',
+x: event.clientX,
+y: event.clientY,
+category: 'user_behavior'
+});
+lastMouseMove = now;
+}
+});
+
+// Track page visibility changes
+document.addEventListener('visibilitychange', () => {
+this.logger.info('Page visibility changed', {
+hidden: document.hidden,
+category: 'user_behavior'
+});
+
+if (document.hidden && this.currentSong) {
+this.pauseListeningTracking();
+} else if (!document.hidden && this.currentSong) {
+this.resumeListeningTracking();
+}
+});
+
+// Track scroll behavior
+let lastScrollTime = 0;
+window.addEventListener('scroll', () => {
+const now = Date.now();
+if (now - lastScrollTime > 2000) { // Every 2 seconds
+this.logger.debug('Scroll activity', {
+scrollY: window.scrollY,
+scrollHeight: document.documentElement.scrollHeight,
+category: 'user_behavior'
+});
+lastScrollTime = now;
+}
+});
+}
+
+// Music-specific analytics
+startSongTracking(song) {
+if (this.currentSong) {
+this.endSongTracking();
+}
+
+this.currentSong = song;
+this.songStartTime = Date.now();
+
+this.logger.trackPlay({
+id: song.id || song.songName,
+name: song.songName,
+duration: song.duration,
+source: song.filepath
+});
+
+this.logger.info('Song tracking started', {
+songName: song.songName,
+category: 'music_analytics'
+});
+}
+
+pauseListeningTracking() {
+if (this.currentSong && this.songStartTime) {
+const listeningTime = Date.now() - this.songStartTime;
+this.totalListeningTime += listeningTime;
+
+this.logger.trackPause({
+id: this.currentSong.id || this.currentSong.songName,
+name: this.currentSong.songName
+}, listeningTime);
+}
+}
+
+resumeListeningTracking() {
+if (this.currentSong) {
+this.songStartTime = Date.now();
+this.logger.info('Listening resumed', {
+songName: this.currentSong.songName,
+category: 'music_analytics'
+});
+}
+}
+
+endSongTracking(reason = 'completed') {
+if (this.currentSong && this.songStartTime) {
+const listeningTime = Date.now() - this.songStartTime;
+this.totalListeningTime += listeningTime;
+
+this.logger.info('Song tracking ended', {
+songName: this.currentSong.songName,
+listeningTime: listeningTime,
+reason: reason,
+category: 'music_analytics'
+});

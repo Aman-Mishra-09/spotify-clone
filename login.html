@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="logo">
+                <img src="logo.png" alt="Spotify">
+                <h1>Spotify Clone</h1>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="form-section">
+                <h2>Login to Continue</h2>
+                <form id="login-form">
+                    <div class="input-group">
+                        <input type="email" id="loginEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Log In</button>
+                </form>
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+                <p class="switch-form">Don't have an account? <a href="#" id="showSignup">Sign up</a></p>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="form-section" style="display: none;">
+                <h2>Sign up for free</h2>
+                <form id="signup-form">
+                    <div class="input-group">
+                        <input type="text" id="signupName" placeholder="Full Name" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="signupEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Sign Up</button>
+                </form>
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+                <p class="switch-form">Already have an account? <a href="#" id="showLogin">Log in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+    
+</body>
+</html>
