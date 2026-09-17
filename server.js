@@ -15,6 +15,11 @@ app.options('*', cors());
 
 // Body parser
 app.use(express.json());
+app.use(express.static(__dirname));
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
 
 // Temporary storage
 let users = [];
@@ -71,7 +76,7 @@ app.get('/api/users', (req, res) => {
     });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });

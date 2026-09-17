@@ -19,7 +19,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const password = document.getElementById('loginPassword').value;
 
     try {
-        const response = await fetch('http://localhost:3000/api/login', {
+        const response = await fetch('/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     console.log('🚀 Sending signup request...'); // Debug
     
     try {
-        const response = await fetch('http://localhost:3000/api/signup', {
+        const response = await fetch('/api/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
